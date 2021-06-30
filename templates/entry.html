@@ -1,0 +1,11 @@
+{% extends "base_template.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ title }}</h1>
+<p><small>Viewed {{ view_count }} times</small></p>
+<p>{{ message }}</p>
+
+{% endblock %}
