@@ -3,13 +3,24 @@ import csv
 FIELDNAMES = ["id", "title", "message", "view_count"]
 
 
-def read_all_entries():
-    output = []
+def count_entries():
     with open("data/database.csv", mode="r") as file:
         reader = csv.DictReader(file, fieldnames=FIELDNAMES)
-        for row in reader:
+        return len(list(reader))
+
+
+def read_all_entries(start_at=0, limit=20):
+    output = []
+
+    slice_from = start_at * limit
+    slice_to = slice_from + limit
+
+    with open("data/database.csv", mode="r") as file:
+        reader = csv.DictReader(file, fieldnames=FIELDNAMES)
+        for row in list(reader)[1:]:
             output.append(row)
-    return output[1:]
+
+    return output[slice_from:slice_to]
 
 
 def read_entry(id):
@@ -40,14 +51,13 @@ def read_entry(id):
 def insert_entry(title, message):
 
     try:
-        count = len(read_all_entries())
 
         with open("data/database.csv", mode="a", newline="\n") as file:
             writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
 
             writer.writerow(
                 {
-                    "id": count,
+                    "id": count_entries() + 1,
                     "title": title,
                     "message": message,
                     "view_count": 1,

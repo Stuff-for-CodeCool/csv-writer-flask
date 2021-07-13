@@ -1,14 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from data import read_all_entries, insert_entry, read_entry
+import data
 
 app = Flask(__name__)
 app.secret_key = "iuhksdhvlksjhlkfsafvlksfhkj"
 
+PAGES_START_AT = 1
+POSTS_PER_PAGE = 20
+
 
 @app.route("/")
-def index():
-    entries = read_all_entries()
-    return render_template("index.html", entries=entries)
+@app.route("/page/<int:page>")
+@app.route("/page/<int:page>/")
+def index(page=(PAGES_START_AT - 1)):
+    entries = data.read_all_entries(start_at=page, limit=POSTS_PER_PAGE)
+    prev = (page - 1) if page > 0 else None
+    next = (page + 1) if page < data.count_entries() // POSTS_PER_PAGE else None
+
+    return render_template(
+        "index.html",
+        entries=entries,
+        page=page,
+        prev=prev,
+        next=next,
+    )
 
 
 @app.route("/entry/<int:id>")
