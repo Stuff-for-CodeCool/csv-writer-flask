@@ -1,69 +1,89 @@
 import csv
+from os.path import dirname, join
 
 FIELDNAMES = ["id", "title", "message", "view_count"]
 
 
-def count_entries():
-    with open("data/database.csv", mode="r") as file:
+def count_all_entries():
+    with open(
+        join(dirname(__file__), "database.csv"),
+        mode="r",
+        newline="\n",
+    ) as file:
         reader = csv.DictReader(file, fieldnames=FIELDNAMES)
         return len(list(reader))
 
 
-def read_all_entries(start_at=0, limit=20):
+def get_paged_entries(page=1, limit=4):
+    start_at = (page - 1) * limit
+    end_at = start_at + limit
     output = []
 
-    slice_from = start_at * limit
-    slice_to = slice_from + limit
-
-    with open("data/database.csv", mode="r") as file:
+    with open(
+        join(dirname(__file__), "database.csv"),
+        mode="r",
+        newline="\n",
+    ) as file:
         reader = csv.DictReader(file, fieldnames=FIELDNAMES)
         for row in list(reader)[1:]:
             output.append(row)
 
-    return output[slice_from:slice_to]
+    return output[start_at:end_at]
 
 
-def read_entry(id):
-    entries = read_all_entries()
-    output = []
-    for entry in entries:
-        if int(entry["id"]) == id:
-            entry["view_count"] = int(entry["view_count"]) + 1
-            output = entry
+def get_entry(id):
+    with open(
+        join(dirname(__file__), "database.csv"),
+        mode="r+",
+        newline="\n",
+    ) as file:
+        reader = csv.DictReader(file, fieldnames=FIELDNAMES)
+        entries = list(reader)[1:]
 
-    with open("data/database.csv", mode="w", newline="\n") as file:
+        for row in entries:
+            if int(row.get("id")) == int(id):
+                update_entry(id=int(id), entries=entries)
+                return row
+
+
+def update_entry(id, entries):
+    with open(
+        join(dirname(__file__), "database.csv"),
+        mode="w+",
+        newline="\n",
+    ) as file:
+        output = []
+
+        for entry in entries:
+
+            if int(entry.get("id", 0)) == id:
+                entry["view_count"] = int(entry.get("view_count", 0)) + 1
+
+            output.append(entry)
+
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
         writer.writeheader()
 
-        for index, entry in enumerate(entries):
-            writer.writerow(
-                {
-                    "id": index,
-                    "title": entry["title"],
-                    "message": entry["message"],
-                    "view_count": entry["view_count"],
-                }
-            )
-
-    return output
+        for entry in output:
+            writer.writerow(entry)
 
 
-def insert_entry(title, message):
+def add_entry(title, message):
+    with open(
+        join(dirname(__file__), "database.csv"),
+        mode="a+",
+        newline="\n",
+    ) as file:
+        writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
+        # writer.writeheader()
 
-    try:
+        writer.writerow(
+            {
+                "id": count_all_entries(),
+                "title": title,
+                "message": message,
+                "view_count": 0,
+            }
+        )
 
-        with open("data/database.csv", mode="a", newline="\n") as file:
-            writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
-
-            writer.writerow(
-                {
-                    "id": count_entries() + 1,
-                    "title": title,
-                    "message": message,
-                    "view_count": 1,
-                }
-            )
-        return True
-
-    except:
-        return False
+        return count_all_entries()

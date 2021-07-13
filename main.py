@@ -4,17 +4,26 @@ import data
 app = Flask(__name__)
 app.secret_key = "iuhksdhvlksjhlkfsafvlksfhkj"
 
-PAGES_START_AT = 1
-POSTS_PER_PAGE = 20
+
+@app.errorhandler(404)
+def page_not_found():
+    return render_template("404.html")
+
+
+POSTS_PER_PAGE = 4
 
 
 @app.route("/")
 @app.route("/page/<int:page>")
 @app.route("/page/<int:page>/")
-def index(page=(PAGES_START_AT - 1)):
-    entries = data.read_all_entries(start_at=page, limit=POSTS_PER_PAGE)
-    prev = (page - 1) if page > 0 else None
-    next = (page + 1) if page < data.count_entries() // POSTS_PER_PAGE else None
+def index(page=1):
+    entries = data.get_paged_entries(
+        page=page,
+        limit=POSTS_PER_PAGE,
+    )
+
+    prev = page - 1 if page > 1 else None
+    next = page + 1 if page < (data.count_all_entries() // POSTS_PER_PAGE) else None
 
     return render_template(
         "index.html",
@@ -26,31 +35,33 @@ def index(page=(PAGES_START_AT - 1)):
 
 
 @app.route("/entry/<int:id>")
+@app.route("/entry/<int:id>/")
 def get_entry(id):
-    entry = read_entry(id)
+    try:
+        (id, title, message, view_count) = data.get_entry(id).values()
 
-    title = entry["title"]
-    message = entry["message"]
-    view_count = entry["view_count"]
-
-    return render_template(
-        "entry.html",
-        title=title,
-        message=message,
-        view_count=view_count,
-    )
+        return render_template(
+            "entry.html",
+            title=title,
+            message=message,
+            view_count=view_count,
+        )
+    except AttributeError:
+        return page_not_found()
 
 
 @app.route("/add", methods=["POST"])
-def adding():
-    title = request.form.get("title")
-    message = request.form.get("message")
+@app.route("/add/", methods=["POST"])
+def add_entry():
+    title = request.form.get("title", None)
+    message = request.form.get("message", None)
 
-    if insert_entry(title, message):
-        flash("Entry added")
-        return redirect(url_for("index"))
+    if not title or not message:
+        flash("Please fill in all required fields")
+    else:
+        id = data.add_entry(title=title, message=message)
+        return redirect(url_for("get_entry", id=id))
 
-    flash("Entry not added")
     return redirect(url_for("index"))
 
 

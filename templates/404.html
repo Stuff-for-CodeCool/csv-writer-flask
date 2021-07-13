@@ -1,0 +1,12 @@
+{% extends "base_template.html" %}
+
+
+{% block title %}Whoops{% endblock %}
+
+{% block content %}
+
+<h1>404</h1>
+<p>You've reached a page that doesn't actually exist</p>
+<p><a href="{{ url_for('index') }}">Go back home</a></p>
+
+{% endblock %}
