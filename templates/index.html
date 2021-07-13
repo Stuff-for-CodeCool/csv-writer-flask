@@ -34,7 +34,7 @@
         {% for e in entries %}
         <tr>
             <td>
-                <a href="{{ url_for( 'get_entry', id=e.id ) }}">
+                <a href="{{ e.link }}">
                     {{ e.title }}
                 </a>
             </td>
@@ -47,13 +47,13 @@
 
 <nav>
     {% if prev %}
-        <a href="{{ url_for('index', page=prev) }}">&lt;</a>
+        <a href="{{ prev }}">&lt;</a>
     {% endif %}
 
     <span>{{ page }}</span>
 
     {% if next %}
-        <a href="{{ url_for('index', page=next) }}">&gt;</a>
+        <a href="{{ next }}">&gt;</a>
     {% endif %}
 </nav>
 
@@ -63,4 +63,8 @@
 
 {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
 {% endblock %}
