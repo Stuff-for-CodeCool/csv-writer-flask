@@ -44,7 +44,7 @@ def insert_entry(title, message):
 
         with open("data/database.csv", mode="a", newline="\n") as file:
             writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
-            
+
             writer.writerow(
                 {
                     "id": count,

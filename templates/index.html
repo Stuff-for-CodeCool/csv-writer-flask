@@ -1,18 +1,15 @@
 {% extends "base_template.html" %}
 
+
 {% block title %}Add stuff{% endblock %}
 
 {% block content %}
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
+<ul class="flashes">
+    {% for message in get_flashed_messages() %}
+    <li>{{ message }}</li>
     {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
+</ul>
 
 <form action="{{ url_for('adding') }}" method="POST">
     <p>
@@ -49,6 +46,11 @@
         {% endfor %}
     </tbody>
 </table>
+
 {% else %}
+
 <p>Nothing here</p>
-{% endif %} {% endblock %}
+
+{% endif %}
+
+{% endblock %}

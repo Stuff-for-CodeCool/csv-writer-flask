@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from data import read_all_entries, insert_entry, read_entry
 
 app = Flask(__name__)
-app.secret_key = "alskua ekjegu keucyf iqek,rvgkfarg rkjegkjqaved"
+app.secret_key = "iuhksdhvlksjhlkfsafvlksfhkj"
 
 
 @app.route("/")
