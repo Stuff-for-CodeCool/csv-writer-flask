@@ -48,12 +48,16 @@
 <nav>
     {% if prev %}
         <a href="{{ url_for('index', page=prev) }}">&lt;</a>
+    {% else %}
+        <a class="hidden" href="{{ url_for('index', page=prev) }}">&lt;</a>
     {% endif %}
-
+    
     <span>{{ page }}</span>
-
+    
     {% if next %}
         <a href="{{ url_for('index', page=next) }}">&gt;</a>
+    {% else %}
+        <a class="hidden" href="{{ url_for('index', page=next) }}">&gt;</a>
     {% endif %}
 </nav>
 
